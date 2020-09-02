@@ -1,2 +1,3 @@
 *.envrc
 vars.yaml
+env.yaml
