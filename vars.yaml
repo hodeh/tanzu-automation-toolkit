@@ -1,4 +1,4 @@
-platform-automation-bucket: tanzu-automation-bucket
-credhub-server: https://ci.demo.tanzu-platform.me:8844
-opsman-url: https://opsmanager.demo.tanzu-platform.me
+platform-automation-bucket: 
+credhub-server: 
+opsman-url: 
 
