@@ -10,6 +10,6 @@ stemcell-iaas: vsphere
 s3-access-key-id: ((s3-access-key-id))
 s3-secret-access-key: ((s3-secret-key))
 s3-bucket: ((s3-bucket))
-s3-region-name: ((s3_region_name))
+s3-endpoint: ((s3-endpoint))
 s3-stemcell-path: tas-stemcell
 # code_snippet download-tas-from-pivnet-usage end
