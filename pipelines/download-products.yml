@@ -15,57 +15,85 @@ resources:
 - name: opsman-product
   type: s3
   source:
-    access_key_id: ((s3-access-key-id))
-    bucket: ((s3-bucket))
-    secret_access_key: ((s3-secret-key))
+    access_key_id: ((s3_access_key_id))
+    bucket: ((s3_pivnet_products_bucket))
+    endpoint: ((s3-endpoint))
+    skip_ssl_verification: true
+    disable_ssl: true    
+
+    secret_access_key: ((s3_secret_access_key))
     regexp: \[ops-manager,(.*)\].*.ova
 
 - name: pks-product
   type: s3
   source:
-    access_key_id: ((s3-access-key-id))
-    bucket: ((s3-bucket))
-    secret_access_key: ((s3-secret-key))
+    access_key_id: ((s3_access_key_id))
+    bucket: ((s3_pivnet_products_bucket))
+    endpoint: ((s3-endpoint))
+    skip_ssl_verification: true
+    disable_ssl: true    
+
+    secret_access_key: ((s3_secret_access_key))
     regexp: \[pivotal-container-service,(.*)\]pivotal-container-service-.*.pivotal
 
 - name: pks-stemcell
   type: s3
   source:
-    access_key_id: ((s3-access-key-id))
-    bucket: ((s3-bucket))
-    secret_access_key: ((s3-secret-key))
+    access_key_id: ((s3_access_key_id))
+    bucket: ((s3_pivnet_products_bucket))
+    endpoint: ((s3-endpoint))
+    skip_ssl_verification: true
+    disable_ssl: true    
+
+    secret_access_key: ((s3_secret_access_key))
     regexp: pks-stemcell/\[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-.*-vsphere.*\.tgz
 
 - name: tas-product
   type: s3
   source:
-    access_key_id: ((s3-access-key-id))
-    bucket: ((s3-bucket))
-    secret_access_key: ((s3-secret-key))
+    access_key_id: ((s3_access_key_id))
+    bucket: ((s3_pivnet_products_bucket))
+    endpoint: ((s3-endpoint))
+    skip_ssl_verification: true
+    disable_ssl: true    
+
+    secret_access_key: ((s3_secret_access_key))
     regexp: \[elastic-runtime,(.*)\]srt-.*.pivotal
 
 - name: tas-stemcell
   type: s3
   source:
-    access_key_id: ((s3-access-key-id))
-    bucket: ((s3-bucket))
-    secret_access_key: ((s3-secret-key))
+    access_key_id: ((s3_access_key_id))
+    bucket: ((s3_pivnet_products_bucket))
+    endpoint: ((s3-endpoint))
+    skip_ssl_verification: true
+    disable_ssl: true    
+
+    secret_access_key: ((s3_secret_access_key))
     regexp: tas-stemcell/\[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-.*-vsphere.*\.tgz
 
 - name: healthwatch-product
   type: s3
   source:
-    access_key_id: ((s3-access-key-id))
-    bucket: ((s3-bucket))
-    secret_access_key: ((s3-secret-key))
+    access_key_id: ((s3_access_key_id))
+    bucket: ((s3_pivnet_products_bucket))
+    endpoint: ((s3-endpoint))
+    skip_ssl_verification: true
+    disable_ssl: true    
+
+    secret_access_key: ((s3_secret_access_key))
     regexp: \[p-healthwatch,(.*)\].*.pivotal
 
 - name: healthwatch-stemcell
   type: s3
   source:
-    access_key_id: ((s3-access-key-id))
-    bucket: ((s3-bucket))
-    secret_access_key: ((s3-secret-key))
+    access_key_id: ((s3_access_key_id))
+    bucket: ((s3_pivnet_products_bucket))
+    endpoint: ((s3-endpoint))
+    skip_ssl_verification: true
+    disable_ssl: true    
+
+    secret_access_key: ((s3_secret_access_key))
     regexp: healthwatch-stemcell/\[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-.*-vsphere.*\.tgz
 # code_snippet resources-pipeline-products end yaml
 
@@ -73,33 +101,17 @@ resources:
 - name: platform-automation-pivnet
   type: pivnet
   source:
-    api_token: ((pivnet-refresh-token))
+    api_token: ((pivnet_token))
     product_slug: platform-automation
-    product_version: 2\.(.*)
     sort_by: semver
 
-- name: platform-automation-tasks
-  type: s3
-  source:
-    access_key_id: ((s3-access-key-id))
-    bucket: ((s3-bucket))
-    secret_access_key: ((s3-secret-key))
-    regexp: platform-automation-tasks-(.*).zip
-
-- name: platform-automation-image
-  type: s3
-  source:
-    access_key_id: ((s3-access-key-id))
-    bucket: ((s3-bucket))
-    secret_access_key: ((s3-secret-key))
-    regexp: platform-automation-image-(.*).tgz
 # code_snippet resources-pipeline-platform-automation end yaml
 
 # code_snippet resources-pipeline-configurations start yaml
 - name: configuration
   type: git
   source:
-    private_key: ((plat-auto-pipes-deploy-key))
+    private_key: ((plat-auto-pipes-deploy-key.private_key))
     uri: ((pipeline-repo))
     branch: master
     submodules: all
@@ -138,10 +150,14 @@ jobs:
     - get: daily
       trigger: true
     - get: platform-automation-image
+      resource: platform-automation-pivnet
       params:
+        globs: ["*image*.tgz"]
         unpack: true
     - get: platform-automation-tasks
+      resource: platform-automation-pivnet
       params:
+        globs: ["*tasks*.zip"]
         unpack: true
     - get: configuration
   - task: prepare-tasks-with-secrets
@@ -165,10 +181,14 @@ jobs:
     - get: daily
       trigger: true
     - get: platform-automation-image
+      resource: platform-automation-pivnet
       params:
+        globs: ["*image*.tgz"]
         unpack: true
     - get: platform-automation-tasks
+      resource: platform-automation-pivnet
       params:
+        globs: ["*tasks*.zip"]
         unpack: true
     - get: configuration
   - task: prepare-tasks-with-secrets
@@ -196,12 +216,15 @@ jobs:
       - get: daily
         trigger: true
       - get: platform-automation-image
+        resource: platform-automation-pivnet
         params:
+          globs: ["*image*.tgz"]
           unpack: true
       - get: platform-automation-tasks
+        resource: platform-automation-pivnet
         params:
+          globs: ["*tasks*.zip"]
           unpack: true
-      - get: configuration
     - task: prepare-tasks-with-secrets
       <<: *prepare-tasks-with-secrets
     - task: download-tas-product-and-stemcell
@@ -226,10 +249,14 @@ jobs:
       - get: daily
         trigger: true
       - get: platform-automation-image
+        resource: platform-automation-pivnet
         params:
+          globs: ["*image*.tgz"]
           unpack: true
       - get: platform-automation-tasks
+        resource: platform-automation-pivnet
         params:
+          globs: ["*tasks*.zip"]
           unpack: true
       - get: configuration
     - task: prepare-tasks-with-secrets
@@ -250,19 +277,7 @@ jobs:
           params:
             file: healthwatch-stemcell/*.tgz
 
-- name: fetch-platform-automation
-  # We use the pivnet resource to bootstrap the pipeline,
-  # and because this product is part of the pipeline, not the foundation
-  plan:
-  - get: platform-automation-pivnet
-    trigger: true
-  - aggregate:
-    - put: platform-automation-tasks
-      params:
-        file: platform-automation-pivnet/*tasks*.zip
-    - put: platform-automation-image
-      params:
-        file: platform-automation-pivnet/*image*.tgz
+
 # code_snippet resources-pipeline-jobs end yaml
 # code_snippet put-resources-pipeline end
 # The previous line helps maintain current documentation at http://docs.pivotal.io.

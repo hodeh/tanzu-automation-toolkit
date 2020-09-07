@@ -6,6 +6,24 @@ resource_types:
     repository: pivotalcf/pivnet-resource
     tag: latest-final
 resources:
+- name: installation
+  type: s3
+  source:
+    access_key_id: ((s3-access-key-id))
+    skip_ssl_verification: true
+    disable_ssl: true    
+    secret_access_key: ((s3-secret-key))
+    bucket: ((platform-automation-bucket))
+    endpoint: ((s3-endpoint))
+    skip_ssl_verification: true
+    regexp: installation-(.*).zip
+    disable_ssl: true
+- name: env
+  type: git
+  source:
+    uri: ((pipeline-repo))
+    private_key: ((plat-auto-pipes-deploy-key.private_key))
+    branch: master
 - name: platform-automation
   type: pivnet
   source:
@@ -26,9 +44,26 @@ jobs:
         globs: ["*tasks*.zip"]
         unpack: true
     - get: env
+    - task: credhub-interpolate
+      image: platform-automation-image
+      file: platform-automation-tasks/tasks/credhub-interpolate.yml
+      params:
+        CREDHUB_CLIENT: ((credhub-client))
+        CREDHUB_SECRET: ((credhub-secret))
+        CREDHUB_SERVER: ((credhub-server))
+        CREDHUB_CA_CERT: ((credhub-cacert))
+        PREFIX: /concourse/main/foundation
+      input_mapping:
+        files: env
+      output_mapping:
+        interpolated-files: interpolated-env
+
+
     - task: export-installation
       image: platform-automation-image
       file: platform-automation-tasks/tasks/export-installation.yml
+      input_mapping:
+        env: interpolated-env
     - put: installation
       params:
         file: installation/installation-*.zip
