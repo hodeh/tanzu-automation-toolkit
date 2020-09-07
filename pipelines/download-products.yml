@@ -46,7 +46,7 @@ resources:
     disable_ssl: true    
 
     secret_access_key: ((s3_secret_access_key))
-    regexp: pks-stemcell/\[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-.*-vsphere.*\.tgz
+    regexp: pks-stemcell/\[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-.*-az.*\.tgz
 
 - name: tas-product
   type: s3
@@ -70,7 +70,7 @@ resources:
     disable_ssl: true    
 
     secret_access_key: ((s3_secret_access_key))
-    regexp: tas-stemcell/\[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-.*-vsphere.*\.tgz
+    regexp: tas-stemcell/\[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-.*-azure.*\.tgz
 
 - name: healthwatch-product
   type: s3
@@ -94,7 +94,7 @@ resources:
     disable_ssl: true    
 
     secret_access_key: ((s3_secret_access_key))
-    regexp: healthwatch-stemcell/\[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-.*-vsphere.*\.tgz
+    regexp: healthwatch-stemcell/\[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-.*-azure.*\.tgz
 # code_snippet resources-pipeline-products end yaml
 
 # code_snippet resources-pipeline-platform-automation start yaml
@@ -132,12 +132,10 @@ prepare-tasks-with-secrets: &prepare-tasks-with-secrets
   image: platform-automation-image
   file: platform-automation-tasks/tasks/prepare-tasks-with-secrets.yml
   params:
-    VARS_PATHS: vars/foundations/vars
     CONFIG_PATHS: config/download-product-pivnet
   input_mapping:
     tasks: platform-automation-tasks
     config: configuration
-    vars: configuration
   output_mapping:
     tasks: platform-automation-tasks
 # code_snippet resources-pipeline-prepare-tasks-with-secrets end yaml
